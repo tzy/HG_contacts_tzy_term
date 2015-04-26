@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item  
+        android:id="@+id/search_item"  
+        android:actionViewClass="android.widget.SearchView" 
+        android:iconifiedByDefault="false"
+        android:showAsAction="always"  
+        android:title="@string/search_icon" />  
+
+</menu>
