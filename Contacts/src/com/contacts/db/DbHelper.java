@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 
 public class DbHelper extends SQLiteOpenHelper{
 	/**
@@ -32,6 +33,12 @@ public class DbHelper extends SQLiteOpenHelper{
 	public static final String EMAIL = "email";
 	public static final String TAG_ID = "tag_id";
 	public static final String TAG = "tag";
+	
+	/**
+	 * uri
+	 */
+	public static final Uri URI_CONTACT_TABLE = 
+		    Uri.parse("sqlite://com.contacts.activity/" + DbHelper.CONTACT_TABLE);
 
 	public DbHelper(Context context, String name, CursorFactory factory,
 			int version) {

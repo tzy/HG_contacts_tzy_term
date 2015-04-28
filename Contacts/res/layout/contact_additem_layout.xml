@@ -60,7 +60,7 @@
                             android:textSize="16dp" />
 
                         <EditText
-                            android:id="@+id/et_username"
+                            android:id="@+id/edt_username"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
@@ -253,7 +253,7 @@
                             android:textColor="@android:color/black" />
 
                         <EditText
-                            android:id="@+id/et_10a_id"
+                            android:id="@+id/edt_address"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="1dp"
@@ -286,7 +286,7 @@
                             android:textColor="@android:color/black" />
 
                         <EditText
-                            android:id="@+id/et_12a_id"
+                            android:id="@+id/edt_note"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="1dp"
@@ -298,5 +298,13 @@
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>
+    
+    <Button 
+        android:id="@+id/bt_submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:text="完成"/>
 
 </RelativeLayout>

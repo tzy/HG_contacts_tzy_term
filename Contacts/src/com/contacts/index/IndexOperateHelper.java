@@ -39,12 +39,14 @@ public class IndexOperateHelper {
 		return mAnalyzer;
 	}
 
-	public void addCommonDocument(String contactId, String content,
+	public void addCommonDocument(String contactId, String name, String content,
 			String dataType) {
 		Document doc = new Document();// 创建文档
 
 		Field idField = new Field(IndexConfig.ID_FILED, contactId, Store.YES,
 				Index.NOT_ANALYZED_NO_NORMS);
+		Field nameField = new Field(IndexConfig.NAME_FILED, name,
+				Store.YES, Index.NO);
 		Field contentField = new Field(IndexConfig.CONTENT_FILED, content, Store.YES,
 				Index.ANALYZED_NO_NORMS,
 				Field.TermVector.WITH_POSITIONS_OFFSETS);
@@ -52,6 +54,7 @@ public class IndexOperateHelper {
 				Store.YES, Index.NO);
 
 		doc.add(idField);
+		doc.add(nameField);
 		doc.add(contentField);
 		doc.add(typeField);
 
@@ -67,11 +70,13 @@ public class IndexOperateHelper {
 		}
 	}
 
-	public void addTagDocument(String contactId, String content, String tagId) {
+	public void addTagDocument(String contactId, String name, String content, String tagId) {
 		Document doc = new Document();// 创建文档
 
 		Field idField = new Field(IndexConfig.ID_FILED, contactId, Store.YES,
 				Index.NOT_ANALYZED_NO_NORMS);
+		Field nameField = new Field(IndexConfig.NAME_FILED, name,
+				Store.YES, Index.NO);
 		Field contentField = new Field(IndexConfig.CONTENT_FILED, content,
 				Store.YES, Index.ANALYZED_NO_NORMS,
 				Field.TermVector.WITH_POSITIONS_OFFSETS);
@@ -81,6 +86,7 @@ public class IndexOperateHelper {
 				Index.NOT_ANALYZED_NO_NORMS);
 
 		doc.add(idField);
+		doc.add(nameField);
 		doc.add(contentField);
 		doc.add(typeField);
 		doc.add(tagIdFild);

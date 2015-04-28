@@ -8,13 +8,12 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.search.ScoreDoc;
 
 import android.app.Activity;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -23,7 +22,6 @@ import android.widget.ListView;
 
 import com.contacts.contact.ContactForSearch;
 import com.contacts.contact.ContactForSearchAdapter;
-import com.contacts.db.DbHelper;
 import com.contacts.index.HighLighter;
 import com.contacts.index.IndexConfig;
 import com.contacts.index.IndexSearchHelper;
@@ -37,9 +35,6 @@ public class SearchActivity extends Activity {
 	ContactForSearchAdapter adapter;
 	ArrayList<ContactForSearch> contacts;
 
-	DbHelper dbHelper;
-	SQLiteDatabase db;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,8 +46,6 @@ public class SearchActivity extends Activity {
 
 		set_mListView_adapter();// 给listview控件添加一个adapter
 
-		dbHelper = new DbHelper(this, DbHelper.DB_NAME);
-		db = dbHelper.getReadableDatabase();
 	}
 
 	/**
@@ -103,9 +96,10 @@ public class SearchActivity extends Activity {
 							if (oldString.equals(newString)) {
 								SearchTask searchTask = new SearchTask();
 								searchTask.execute(newString);
+								Log.d("myDebug", newString);
 							}
 						}
-					}, 500);
+					}, 300);
 
 				}
 
@@ -165,19 +159,12 @@ public class SearchActivity extends Activity {
 							contact.setName(content);
 							contacts.add(contact);
 						} else {
-							String name = null;
-							Cursor cursor = db.rawQuery("select "
-									+ DbHelper.NAME + " from "
-									+ DbHelper.CONTACT_TABLE + " where "
-									+ DbHelper.CONTACT_ID + "=?",
-									new String[] { id });
-							if (cursor.moveToFirst())
-								name = cursor.getString(cursor.getColumnIndex(DbHelper.NAME));
-							cursor.close();
+							String name = doc.get(IndexConfig.NAME_FILED);
+							
 							if (dataType.equals(IndexConfig.TYPE_FULL_PINYIN) ||
 									dataType .equals(IndexConfig.TYPE_FIRST_PINYIN)){
-								HighLighter.highlightString(name);
-								contact.setName(name); 
+								String highlightName = HighLighter.highlightString(name);
+								contact.setName(highlightName); 
 								contacts.add(contact);
 							}else{
 								contact.setName(name); 
@@ -203,16 +190,6 @@ public class SearchActivity extends Activity {
 			adapter.notifyDataSetChanged();
 		}
 		
-	}
-
-	@Override
-	protected void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
-		if (db != null)
-			db.close();
-		if (dbHelper != null)
-			dbHelper.close();
 	}
 
 }
