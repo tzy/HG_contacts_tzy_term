@@ -7,9 +7,9 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +22,7 @@ import android.widget.TextView;
 import com.contacts.db.DbHelper;
 import com.contacts.db.SqliteQueryLoader;
 
-public class ContactLookUpActivity extends ActionBarActivity implements
+public class ContactLookUpActivity extends FragmentActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final int PHONE_LOADER_ID = 0;

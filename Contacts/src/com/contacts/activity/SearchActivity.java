@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -96,7 +95,6 @@ public class SearchActivity extends Activity {
 							if (oldString.equals(newString)) {
 								SearchTask searchTask = new SearchTask();
 								searchTask.execute(newString);
-								Log.d("myDebug", newString);
 							}
 						}
 					}, 300);
@@ -144,34 +142,71 @@ public class SearchActivity extends Activity {
 				for (int i = 0; i < scoreDocs.length; i++) {
 
 					try {
+						// 取出匹配的记录的信息
 						int docnum = scoreDocs[i].doc;
 						Document doc = ish.getSearcher().doc(docnum);
 						String id = doc.get(IndexConfig.ID_FILED);
+						String name = doc.get(IndexConfig.NAME_FILED);
 						String content = doc.get(IndexConfig.CONTENT_FILED);
 						String dataType = doc.get(IndexConfig.TYPE_FILED);
+
+						// 高亮的类
 						HighLighter highLighter = new HighLighter(
-								ish.getQuery());
-						content = highLighter.highlighterText(ish.getReader(),
-								docnum, content);
-						
+								queryStrings[0], ish.getQuery());
+
+						// 信息封装
 						ContactForSearch contact = new ContactForSearch(id);
-						if (dataType.equals(IndexConfig.TYPE_NAME)) {
-							contact.setName(content);
+						String highlightName;
+						String highlightInfo;
+						switch (Integer.parseInt(dataType)) {
+						case IndexConfig.NAME_TYPE:
+							highlightName = highLighter.defaultHighlight(
+									ish.getReader(), docnum, content);
+							contact.setName(highlightName);
+							break;
+						case IndexConfig.FIRST_PINYIN_TYPE:
+							break;
+						case IndexConfig.FULL_PINYIN_TYPE:
+							String fullPinyin = doc
+									.get(IndexConfig.CONTENT_FILED);
+							highlightName = highLighter.highlightByFullPinyin(
+									name, fullPinyin);
+							contact.setName(highlightName);
 							contacts.add(contact);
-						} else {
-							String name = doc.get(IndexConfig.NAME_FILED);
-							
-							if (dataType.equals(IndexConfig.TYPE_FULL_PINYIN) ||
-									dataType .equals(IndexConfig.TYPE_FIRST_PINYIN)){
-								String highlightName = HighLighter.highlightString(name);
-								contact.setName(highlightName); 
-								contacts.add(contact);
-							}else{
-								contact.setName(name); 
-								contact.setDate(dataType, content); 
-								contacts.add(contact);
-							}
+							break;
+						case IndexConfig.PHONE_TYPE:
+							break;
+						case IndexConfig.EMAIL_TYPE:
+							break;
+						default:
+							highlightInfo = highLighter.defaultHighlight(
+									ish.getReader(), docnum, content);
+							contact.setName(name);
+							contact.setDate(dataType, highlightInfo);
+							break;
 						}
+						contacts.add(contact);
+
+						/*
+						 * ContactForSearch contact = new ContactForSearch(id);
+						 * if (dataType.equals(IndexConfig.TYPE_NAME)) {
+						 * contact.setName(content); contacts.add(contact); }
+						 * else { String name = doc.get(IndexConfig.NAME_FILED);
+						 * 
+						 * if (dataType.equals(IndexConfig.TYPE_FULL_PINYIN)) {
+						 * String fullPinyin = doc
+						 * .get(IndexConfig.CONTENT_FILED); String highlightName
+						 * = highLighter .highlightByFullPinyin(name,
+						 * fullPinyin); contact.setName(highlightName);
+						 * contacts.add(contact); } else { if (dataType
+						 * .equals(IndexConfig.TYPE_FIRST_PINYIN)) { String
+						 * highlightName = HighLighter .highlightString(name);
+						 * contact.setName(highlightName);
+						 * contacts.add(contact); } else {
+						 * contact.setName(name); contact.setDate(dataType,
+						 * content); contacts.add(contact); } } }
+						 */
+
 					} catch (CorruptIndexException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -189,7 +224,7 @@ public class SearchActivity extends Activity {
 			// TODO Auto-generated method stub
 			adapter.notifyDataSetChanged();
 		}
-		
+
 	}
 
 }
