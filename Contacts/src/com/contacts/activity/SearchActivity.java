@@ -2,6 +2,7 @@ package com.contacts.activity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
@@ -24,6 +25,7 @@ import com.contacts.contact.ContactForSearchAdapter;
 import com.contacts.index.HighLighter;
 import com.contacts.index.IndexConfig;
 import com.contacts.index.IndexSearchHelper;
+import com.contacts.util.ContactsUnionSet;
 
 public class SearchActivity extends Activity {
 
@@ -122,7 +124,8 @@ public class SearchActivity extends Activity {
 		});
 	}
 
-	private class SearchTask extends AsyncTask<String, Void, Void> {
+	private class SearchTask extends
+			AsyncTask<String, Void, Collection<ContactForSearch>> {
 
 		@Override
 		protected void onPreExecute() {
@@ -133,12 +136,17 @@ public class SearchActivity extends Activity {
 		}
 
 		@Override
-		protected Void doInBackground(String... queryStrings) {
+		protected Collection<ContactForSearch> doInBackground(
+				String... queryStrings) {
 			// TODO Auto-generated method stub
 			IndexSearchHelper ish = new IndexSearchHelper(SearchActivity.this
 					.getApplicationContext().getFilesDir().getAbsolutePath());
 			ScoreDoc[] scoreDocs = ish.query(queryStrings[0]);
-			if (scoreDocs != null) {
+			if (scoreDocs != null && scoreDocs.length > 0) {
+
+				// 结果集
+				ContactsUnionSet contactSet = new ContactsUnionSet();
+
 				for (int i = 0; i < scoreDocs.length; i++) {
 
 					try {
@@ -156,27 +164,25 @@ public class SearchActivity extends Activity {
 
 						// 信息封装
 						ContactForSearch contact = new ContactForSearch(id);
-						String highlightName;
 						String highlightInfo;
 						switch (Integer.parseInt(dataType)) {
 						case IndexConfig.NAME_TYPE:
-							highlightName = highLighter.defaultHighlight(
+							highlightInfo = highLighter.defaultHighlight(
 									ish.getReader(), docnum, content);
-							contact.setName(highlightName);
+							contact.setName(highlightInfo);
 							break;
 						case IndexConfig.FIRST_PINYIN_TYPE:
-							break;
 						case IndexConfig.FULL_PINYIN_TYPE:
-							String fullPinyin = doc
-									.get(IndexConfig.CONTENT_FILED);
-							highlightName = highLighter.highlightByFullPinyin(
-									name, fullPinyin);
-							contact.setName(highlightName);
-							contacts.add(contact);
+							highlightInfo = highLighter.highlightByPinyin(name,
+									content);
+							contact.setName(highlightInfo);
 							break;
 						case IndexConfig.PHONE_TYPE:
-							break;
 						case IndexConfig.EMAIL_TYPE:
+							highlightInfo = highLighter
+									.highlightPrefix(content);
+							contact.setName(name);
+							contact.setDate(dataType, highlightInfo);
 							break;
 						default:
 							highlightInfo = highLighter.defaultHighlight(
@@ -185,27 +191,7 @@ public class SearchActivity extends Activity {
 							contact.setDate(dataType, highlightInfo);
 							break;
 						}
-						contacts.add(contact);
-
-						/*
-						 * ContactForSearch contact = new ContactForSearch(id);
-						 * if (dataType.equals(IndexConfig.TYPE_NAME)) {
-						 * contact.setName(content); contacts.add(contact); }
-						 * else { String name = doc.get(IndexConfig.NAME_FILED);
-						 * 
-						 * if (dataType.equals(IndexConfig.TYPE_FULL_PINYIN)) {
-						 * String fullPinyin = doc
-						 * .get(IndexConfig.CONTENT_FILED); String highlightName
-						 * = highLighter .highlightByFullPinyin(name,
-						 * fullPinyin); contact.setName(highlightName);
-						 * contacts.add(contact); } else { if (dataType
-						 * .equals(IndexConfig.TYPE_FIRST_PINYIN)) { String
-						 * highlightName = HighLighter .highlightString(name);
-						 * contact.setName(highlightName);
-						 * contacts.add(contact); } else {
-						 * contact.setName(name); contact.setDate(dataType,
-						 * content); contacts.add(contact); } } }
-						 */
+						contactSet.addContact(contact);
 
 					} catch (CorruptIndexException e) {
 						// TODO Auto-generated catch block
@@ -215,13 +201,16 @@ public class SearchActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
+				return contactSet.getSet();
 			}
 			return null;
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Collection<ContactForSearch> result) {
 			// TODO Auto-generated method stub
+			if (result != null)
+				contacts.addAll(result);
 			adapter.notifyDataSetChanged();
 		}
 

@@ -1,20 +1,19 @@
 package com.contacts.contact;
 
 import com.contacts.index.IndexConfig;
+import com.contacts.util.StrUtil;
 
 public class ContactForSearch {
 	private String contactId;
 	private String name;
 	private String dataType;
 	private String data;
-	private boolean highlightName;
 	
 	public ContactForSearch(String id){
 		contactId = id;
 		name = null;
 		dataType = null;
 		data = null;
-		highlightName = false;
 	}
 	
 	public String getId(){
@@ -29,17 +28,21 @@ public class ContactForSearch {
 		return name;
 	}
 	
+	public String getDataType(){
+		return dataType;
+	}
+	
+	public String getData(){
+		return data;
+	}
+	
 	public void setDate(String dataType, String data){
 		this.dataType = dataType;
 		this.data = data;
 	}
 	
-	public void setHighlightName(Boolean highlight){
-		highlightName = highlight;
-	}
-	
-	public boolean isHighlightName(){
-		return highlightName;
+	public void addData(String newData){
+		data = StrUtil.connectString(data, newData);
 	}
 	
 	public String getInfo(){
