@@ -251,29 +251,46 @@
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout_login_id"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="2.0dp"
+                android:layout_marginRight="2.0dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:paddingBottom="16.0dp"
+                android:paddingTop="8.0dp" >
+
+                <Button
+                    android:id="@+id/bt_create_qcode"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dip"
+                    android:layout_marginRight="20dip"
+                    android:layout_marginBottom="3dp"
+                    android:background="@drawable/button_delete"
+                    android:gravity="center"
+                    android:text="@string/create_qcode"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18dip" />
+                
+                <Button
+                    android:id="@+id/bt_delete_contact"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dip"
+                    android:layout_marginRight="20dip"
+                    android:layout_below="@id/bt_create_qcode"
+                    android:background="@drawable/button_delete"
+                    android:gravity="center"
+                    android:text="@string/delete"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18dip" />
+            </RelativeLayout>
         </LinearLayout>
     </ScrollView>
-
-    <RelativeLayout
-        android:id="@+id/relativeLayout_login_id"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/login_edit_btn_id"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dip"
-            android:layout_marginRight="20dip"
-            android:background="@drawable/button_delete"
-            android:gravity="center"
-            android:text="删除"
-            android:textColor="#FFFFFF"
-            android:textSize="18dip" />
-    </RelativeLayout>
 
 </RelativeLayout>

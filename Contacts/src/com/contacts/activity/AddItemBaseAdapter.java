@@ -20,12 +20,6 @@ public class AddItemBaseAdapter extends BaseAdapter {
 	private LayoutInflater mInflater;
 	private List<String> mData;// ´æ´¢µÄEditTextÖµ
 
-	public AddItemBaseAdapter(Context context) {
-		mData = new ArrayList<String>();
-		mData.add("");
-		mInflater = LayoutInflater.from(context);
-	}
-
 	public AddItemBaseAdapter(Context context, ArrayList<String> data) {
 		mData = data;
 		mInflater = LayoutInflater.from(context);

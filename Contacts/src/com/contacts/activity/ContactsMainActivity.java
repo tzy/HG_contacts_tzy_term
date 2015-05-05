@@ -1,7 +1,6 @@
 package com.contacts.activity;
 
 import android.app.ActionBar;
-import android.app.ActionBar.Tab;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -21,8 +20,7 @@ import android.widget.RelativeLayout;
 import com.ikimuhendis.ldrawer.ActionBarDrawerToggle;
 import com.ikimuhendis.ldrawer.DrawerArrowDrawable;
 
-public class ContactsMainActivity extends FragmentActivity implements OnClickListener,
-		ActionBar.TabListener, ActionBar.OnNavigationListener {
+public class ContactsMainActivity extends FragmentActivity implements OnClickListener {
 	
 	/** 
      * 用于展示标签的Fragment 
@@ -118,43 +116,6 @@ public class ContactsMainActivity extends FragmentActivity implements OnClickLis
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 		mDrawerToggle.syncState();
 
-		//String[] values = new String[] { "1", "2", "3", "4", "5", "6", "7" };
-
-		//ArrayAdapter<String> LDadapter = new ArrayAdapter<String>(this,
-		//		android.R.layout.simple_list_item_1, android.R.id.text1, values);
-		//mDrawerList.setAdapter(LDadapter);
-
-		/*mDrawerList
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
-						switch (position) {
-						case 0:
-
-							break;
-						case 1:
-
-							break;
-						case 2:
-
-							break;
-						case 3:
-
-							break;
-						case 4:
-
-							break;
-						case 5:
-
-							break;
-						case 6:
-
-							break;
-						}
-
-					}
-				});*/
 	}
 	
 	@Override
@@ -255,9 +216,6 @@ public class ContactsMainActivity extends FragmentActivity implements OnClickLis
 			
 		case R.id.additem_icon:
 			
-			Intent intent1 = new Intent(this,AddContact.class); 
-            startActivity(intent1); 
-            overridePendingTransition(R.anim.push_up_in, R.anim.none);
 			break;
 			
 		case android.R.id.home:
@@ -282,33 +240,6 @@ public class ContactsMainActivity extends FragmentActivity implements OnClickLis
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		mDrawerToggle.onConfigurationChanged(newConfig);
-	}
-
-
-	@Override
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		return false;
-	}
-
-
-	@Override
-	public void onTabSelected(Tab tab, android.app.FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onTabUnselected(Tab tab, android.app.FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onTabReselected(Tab tab, android.app.FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

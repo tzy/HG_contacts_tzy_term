@@ -3,6 +3,7 @@ package com.contacts.db;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v4.content.AsyncTaskLoader;
 
 
@@ -13,6 +14,8 @@ public class SqliteQueryLoader extends AsyncTaskLoader<Cursor> {
 
 	String mDatabaseName;
 	String mTableName;
+	Uri mUri;
+	
 	String[] mProjection;
 	String mSelection;
 	String[] mSelectionArgs;
@@ -29,6 +32,8 @@ public class SqliteQueryLoader extends AsyncTaskLoader<Cursor> {
             // Ensure the cursor window is filled
             cursor.getCount();
             cursor.registerContentObserver(mObserver);
+            cursor.setNotificationUri(getContext().getContentResolver(),
+                    mUri);
         }
         return cursor;
     }
@@ -57,11 +62,12 @@ public class SqliteQueryLoader extends AsyncTaskLoader<Cursor> {
 
     
     public SqliteQueryLoader(Context context, SQLiteDatabase db,
-			String tableName, String[] projection, String selection,
+			String tableName, Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		super(context);
 		mSQLiteDatabase = db;
 		mTableName = tableName;
+		mUri = uri;
 		mObserver = new ForceLoadContentObserver();
 		mProjection = projection;
 		mSelection = selection;
@@ -104,5 +110,5 @@ public class SqliteQueryLoader extends AsyncTaskLoader<Cursor> {
         }
         mCursor = null;
     }
-
+    
 }

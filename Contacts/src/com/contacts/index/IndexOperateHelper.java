@@ -11,6 +11,7 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -102,7 +103,28 @@ public class IndexOperateHelper {
 			e.printStackTrace();
 		}
 	}
+	
+	public void deleteContact(String id){
+		try {
+			indexWriter.deleteDocuments(new Term(IndexConfig.ID_FILED, id));
+			indexWriter.commit();
+		} catch (CorruptIndexException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteContactInTag(String contactId, String tagId){
+		
+	}
 
+	public void deleteTag(String tagId){
+		
+	}
+	
 	public void close() {
 		if (indexWriter != null)
 			try {

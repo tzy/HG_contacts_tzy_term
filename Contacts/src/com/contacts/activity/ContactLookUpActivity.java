@@ -1,6 +1,11 @@
 package com.contacts.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -14,13 +19,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.contacts.contact.Contact;
 import com.contacts.db.DbHelper;
 import com.contacts.db.SqliteQueryLoader;
+import com.contacts.index.IndexOperateHelper;
 
 public class ContactLookUpActivity extends FragmentActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
@@ -31,19 +39,23 @@ public class ContactLookUpActivity extends FragmentActivity implements
 
 	String contactId;
 	String name;
-	long photoId;
 
 	TextView nameTextView;
 	TextView addressTextView;
 	TextView noteTextView;
 
+	Button createQCodeButton;
+	Button deleteButton;
+
 	ListView phones;
 	ListView emails;
 	private SimpleCursorAdapter phonesAdapter;
 	private SimpleCursorAdapter emailsAdapter;
-	
+
 	DbHelper dbHelper = null;
 	SQLiteDatabase db = null;
+
+	IndexOperateHelper ioh = null;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,17 +65,20 @@ public class ContactLookUpActivity extends FragmentActivity implements
 		addressTextView = (TextView) findViewById(R.id.tv_address);
 		noteTextView = (TextView) findViewById(R.id.tv_note);
 
+		createQCodeButton = (Button) findViewById(R.id.bt_create_qcode);
+		createQCodeButton.setOnClickListener(new MyButtonListener());
+		deleteButton = (Button) findViewById(R.id.bt_delete_contact);
+		deleteButton.setOnClickListener(new MyButtonListener());
+
 		phones = (ListView) findViewById(R.id.lv_phonenumber);
 		phonesAdapter = new SimpleCursorAdapter(this, R.layout.item_phone,
-				null,
-				new String[] { DbHelper.PHONE_NUM },
+				null, new String[] { DbHelper.PHONE_NUM },
 				new int[] { R.id.tv_phonenumber }, 0);
 		phones.setAdapter(phonesAdapter);
 
 		emails = (ListView) findViewById(R.id.lv_emails);
 		emailsAdapter = new SimpleCursorAdapter(this, R.layout.item_email,
-				null,
-				new String[] { DbHelper.EMAIL },
+				null, new String[] { DbHelper.EMAIL },
 				new int[] { R.id.tv_email }, 0);
 		emails.setAdapter(emailsAdapter);
 
@@ -79,13 +94,30 @@ public class ContactLookUpActivity extends FragmentActivity implements
 		name = bundle.getString(DbHelper.NAME);
 
 		dbHelper = new DbHelper(this, DbHelper.DB_NAME);
-		db = dbHelper.getReadableDatabase();
-		
+		db = dbHelper.getWritableDatabase();
+
+		ioh = new IndexOperateHelper(ContactLookUpActivity.this
+				.getApplicationContext().getFilesDir().getAbsolutePath());
+
 		getSupportLoaderManager().initLoader(PHONE_LOADER_ID, null, this);
 		getSupportLoaderManager().initLoader(EMAIL_LOADER_ID, null, this);
-		getSupportLoaderManager().initLoader(ADDRESS_NOTE_LOADER_ID, null, this);
+		getSupportLoaderManager()
+				.initLoader(ADDRESS_NOTE_LOADER_ID, null, this);
 
 		nameTextView.setText(name);
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		if (db != null)
+			db.close();
+		if (dbHelper != null)
+			dbHelper.close();
+
+		if (ioh != null)
+			ioh.close();
 	}
 
 	public void fixListViewHeight(ListView listView) {
@@ -125,8 +157,57 @@ public class ContactLookUpActivity extends FragmentActivity implements
 			overridePendingTransition(R.anim.push_right_in,
 					R.anim.push_right_out);
 			return true;
+		case R.id.alter_icon:
+			break;
 		}
 		return true;
+	}
+
+	private class MyButtonListener implements View.OnClickListener {
+
+		@Override
+		public void onClick(View arg0) {
+			// TODO Auto-generated method stub
+			switch (arg0.getId()) {
+
+			case R.id.bt_delete_contact:
+				new AlertDialog.Builder(ContactLookUpActivity.this)
+						.setTitle("删除联系人")
+						.setMessage("是否删除联系人")
+						.setPositiveButton("确定",
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface arg0,
+											int arg1) {
+										// TODO Auto-generated method stub
+										deleteContact();
+										finish();
+									}
+								})
+						.setNegativeButton("取消",
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {// 响应事件
+										// TODO Auto-generated method stub
+
+									}
+								}).show();// 在按键响应事件中显示此对话框
+				break;
+
+			case R.id.bt_create_qcode:
+				Contact contact = getContact();
+				break;
+			}
+		}
+	}
+
+	private void deleteContact() {
+		db.delete(DbHelper.CONTACT_TABLE, DbHelper.CONTACT_ID + "=?",
+				new String[] { contactId });
+		ioh.deleteContact(contactId);
+		ContactLookUpActivity.this.getContentResolver().notifyChange(
+				DbHelper.URI_CONTACT_TABLE, null);
 	}
 
 	@Override
@@ -134,19 +215,28 @@ public class ContactLookUpActivity extends FragmentActivity implements
 		// TODO Auto-generated method stub
 		SqliteQueryLoader loader = null;
 		String selection = "_id = ?";
-		String[] selectionArgs = new String[]{contactId};
+		String[] selectionArgs = new String[] { contactId };
 		switch (id) {
 		case PHONE_LOADER_ID:
-			String[] phoneProjection = new String[] {DbHelper.CONTACT_ID, DbHelper.PHONE_NUM};
-			loader = new SqliteQueryLoader(this, db, DbHelper.PHONE_TABLE, phoneProjection, selection, selectionArgs, null);
+			String[] phoneProjection = new String[] { DbHelper.CONTACT_ID,
+					DbHelper.PHONE_NUM };
+			loader = new SqliteQueryLoader(this, db, DbHelper.PHONE_TABLE,
+					DbHelper.URI_PHONE_TABLE, phoneProjection, selection,
+					selectionArgs, null);
 			break;
 		case EMAIL_LOADER_ID:
-			String[] emailProjection = new String[] {DbHelper.CONTACT_ID, DbHelper.EMAIL};
-			loader = new SqliteQueryLoader(this, db, DbHelper.EMAIL_TABLE, emailProjection, selection, selectionArgs, null);
+			String[] emailProjection = new String[] { DbHelper.CONTACT_ID,
+					DbHelper.EMAIL };
+			loader = new SqliteQueryLoader(this, db, DbHelper.EMAIL_TABLE,
+					DbHelper.URI_EMAIL_TABLE, emailProjection, selection,
+					selectionArgs, null);
 			break;
 		case ADDRESS_NOTE_LOADER_ID:
-			String[] otherProjection = new String[] {DbHelper.ADDRESS, DbHelper.NOTE};
-			loader = new SqliteQueryLoader(this, db, DbHelper.CONTACT_TABLE, otherProjection, selection, selectionArgs, null);
+			String[] otherProjection = new String[] { DbHelper.ADDRESS,
+					DbHelper.NOTE };
+			loader = new SqliteQueryLoader(this, db, DbHelper.CONTACT_TABLE,
+					DbHelper.URI_CONTACT_TABLE, otherProjection, selection,
+					selectionArgs, null);
 			break;
 		}
 		return loader;
@@ -194,5 +284,27 @@ public class ContactLookUpActivity extends FragmentActivity implements
 			break;
 		}
 
+	}
+
+	private Contact getContact() {
+		Contact contact = new Contact();
+		contact.setName(name).setAddress(addressTextView.getText().toString())
+				.setNote(noteTextView.getText().toString())
+				.setPhones(getDataFromCursor(phonesAdapter.getCursor()))
+				.setEmails(getDataFromCursor(emailsAdapter.getCursor()));
+		return contact;
+	}
+	
+	private List<String> getDataFromCursor(Cursor cursor){
+		List<String> datas = new ArrayList<String>();
+		if(cursor != null && cursor.getCount() > 0){
+			if (cursor.moveToFirst()) {
+				do {
+					String data = cursor.getString(1);
+					datas.add(data);
+				} while (cursor.moveToNext());
+			}
+		}
+		return datas;
 	}
 }

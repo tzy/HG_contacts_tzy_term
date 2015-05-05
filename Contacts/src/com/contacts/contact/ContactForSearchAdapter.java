@@ -44,7 +44,7 @@ public class ContactForSearchAdapter extends BaseAdapter{
 		// TODO Auto-generated method stub
 		ViewHolder holder = new ViewHolder();
 		if (convertView == null) {
-			convertView = LayoutInflater.from(mContext).inflate(R.layout.test_searchitem_layout, null);
+			convertView = LayoutInflater.from(mContext).inflate(R.layout.searchitem_layout, null);
 			holder.nameText = (TextView) convertView
 					.findViewById(R.id.tv_result_name);
 			holder.infoText = (TextView) convertView

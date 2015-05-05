@@ -10,6 +10,10 @@
     <string name="drawer_close">drawer_close</string>
     <string name="search_icon">search_icon</string>
     <string name="alter">编辑</string>
+    <string name="delete">删除</string>
+    <string name="create_qcode">生成二维码</string>
     <string name="complete">完成</string>
+    <string name="tag_name">标签名</string>
+    <string name="submit">完成</string>
 
 </resources>

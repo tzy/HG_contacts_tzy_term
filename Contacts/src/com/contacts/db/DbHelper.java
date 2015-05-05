@@ -39,6 +39,12 @@ public class DbHelper extends SQLiteOpenHelper{
 	 */
 	public static final Uri URI_CONTACT_TABLE = 
 		    Uri.parse("sqlite://com.contacts.activity/" + DbHelper.CONTACT_TABLE);
+	public static final Uri URI_PHONE_TABLE = 
+		    Uri.parse("sqlite://com.contacts.activity/" + DbHelper.PHONE_TABLE);
+	public static final Uri URI_EMAIL_TABLE = 
+		    Uri.parse("sqlite://com.contacts.activity/" + DbHelper.EMAIL_TABLE);
+	public static final Uri URI_TAG_TABLE = 
+		    Uri.parse("sqlite://com.contacts.activity/" + DbHelper.TAG_TABLE);
 
 	public DbHelper(Context context, String name, CursorFactory factory,
 			int version) {
