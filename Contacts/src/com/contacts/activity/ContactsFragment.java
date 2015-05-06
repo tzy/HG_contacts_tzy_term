@@ -199,7 +199,15 @@ public class ContactsFragment extends Fragment implements
 
 			setupContactsListView();
 			setAlpabetListener();
+			resetTitle();
 		}
+	}
+
+	private void resetTitle() {
+		// TODO Auto-generated method stub
+		int firstVisibleItem = contactsListView.getFirstVisiblePosition();
+		int section = indexer.getSectionForPosition(firstVisibleItem);
+		title.setText(String.valueOf(alphabet.charAt(section)));
 	}
 
 	@Override
@@ -224,10 +232,8 @@ public class ContactsFragment extends Fragment implements
 						ContactLookUpActivity.class);
 				Contact contact = contacts.get(position);
 				String contactId = contact.getId();
-				String name = contact.getName();
 				Bundle bundle = new Bundle();
 				bundle.putString(DbHelper.CONTACT_ID, contactId);
-				bundle.putString(DbHelper.NAME, name);
 				intent.putExtras(bundle);
 				startActivity(intent);
 				getActivity().overridePendingTransition(R.anim.push_left_in,

@@ -20,39 +20,40 @@ import android.widget.RelativeLayout;
 import com.ikimuhendis.ldrawer.ActionBarDrawerToggle;
 import com.ikimuhendis.ldrawer.DrawerArrowDrawable;
 
-public class ContactsMainActivity extends FragmentActivity implements OnClickListener {
-	
-	/** 
-     * 用于展示标签的Fragment 
-     */ 
+public class ContactsMainActivity extends FragmentActivity implements
+		OnClickListener {
+
+	/**
+	 * 用于展示标签的Fragment
+	 */
 	private TagsFragment flagsFragment;
 
-	/** 
-     * 用于展示联系人的Fragment 
-     */ 
+	/**
+	 * 用于展示联系人的Fragment
+	 */
 	private ContactsFragment contactsFragment;
 
-	/** 
-     * 联系人按钮
-     */  
+	/**
+	 * 联系人按钮
+	 */
 	private ImageView contactsImage;
 
-	/** 
-     * 标签按钮 
-     */  
+	/**
+	 * 标签按钮
+	 */
 	private ImageView flagsImage;
-	
+
 	private static final int contactsIndex = 0;
 	private static final int flagsIndex = 1;
 
-	 /** 
-     * 用于对Fragment进行管理 
-     */  
+	/**
+	 * 用于对Fragment进行管理
+	 */
 	private FragmentManager fragmentManager;
 
 	private DrawerLayout mDrawerLayout;
 	private RelativeLayout mDrawerRL;
-	//private ListView mDrawerList;
+	// private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private DrawerArrowDrawable drawerArrow;
 
@@ -73,11 +74,11 @@ public class ContactsMainActivity extends FragmentActivity implements OnClickLis
 
 	private void initUI() {
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		//mDrawerList = (ListView) findViewById(R.id.navdrawer);
+		// mDrawerList = (ListView) findViewById(R.id.navdrawer);
 		mDrawerRL = (RelativeLayout) findViewById(R.id.navdrawer);
-		
-		contactsImage = (ImageView)findViewById(R.id.iv_contacts);
-		flagsImage = (ImageView)findViewById(R.id.iv_flags);
+
+		contactsImage = (ImageView) findViewById(R.id.iv_contacts);
+		flagsImage = (ImageView) findViewById(R.id.iv_flags);
 		contactsImage.setOnClickListener(this);
 		flagsImage.setOnClickListener(this);
 
@@ -116,79 +117,88 @@ public class ContactsMainActivity extends FragmentActivity implements OnClickLis
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 		mDrawerToggle.syncState();
 
+		mDrawerRL.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 	}
-	
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.iv_contacts:
-			 // 当点击了消息tab时，选中第1个tab
+			// 当点击了消息tab时，选中第1个tab
 			setTabSelection(contactsIndex);
 			break;
 		case R.id.iv_flags:
-			 // 当点击了消息tab时，选中第1】2个tab
+			// 当点击了消息tab时，选中第1】2个tab
 			setTabSelection(flagsIndex);
 			break;
 		default:
 			break;
 		}
 	}
-	
-	/** 
-     * 根据传入的index参数来设置选中的tab页。 
-     *  
-     * @param index 
-     *            每个tab页对应的下标。0表示消息，1表示联系人，2表示动态，3表示设置。 
-     */  
+
+	/**
+	 * 根据传入的index参数来设置选中的tab页。
+	 * 
+	 * @param index
+	 *            每个tab页对应的下标。0表示消息，1表示联系人，2表示动态，3表示设置。
+	 */
 	private void setTabSelection(int index) {
 		// 每次选中之前先清楚掉上次的选中状态
 		clearSelection();
-		// 开启一个Fragment事务 
+		// 开启一个Fragment事务
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
-		// 先隐藏掉所有的Fragment，以防止有多个Fragment显示在界面上的情况  
+		// 先隐藏掉所有的Fragment，以防止有多个Fragment显示在界面上的情况
 		hideFragments(transaction);
 		switch (index) {
 		case contactsIndex:
-			// 当点击了联系人tab时，改变控件的图片和文字颜色  
+			// 当点击了联系人tab时，改变控件的图片和文字颜色
 			if (contactsFragment == null) {
-				// 如果ContactsFragment为空，则创建一个并添加到界面上  
+				// 如果ContactsFragment为空，则创建一个并添加到界面上
 				contactsFragment = new ContactsFragment();
 				transaction.add(R.id.content, contactsFragment);
 			} else {
-				// 如果ContactsFragment不为空，则直接将它显示出来  
+				// 如果ContactsFragment不为空，则直接将它显示出来
 				transaction.show(contactsFragment);
 			}
 			break;
 		case flagsIndex:
 		default:
-			// 当点击了消息tab时，改变控件的图片和文字颜色  
+			// 当点击了消息tab时，改变控件的图片和文字颜色
 			if (flagsFragment == null) {
-				 // 如果MessageFragment为空，则创建一个并添加到界面上
+				// 如果MessageFragment为空，则创建一个并添加到界面上
 				flagsFragment = new TagsFragment();
 				transaction.add(R.id.content, flagsFragment);
 			} else {
-				 // 如果MessageFragment不为空，则直接将它显示出来 
+				// 如果MessageFragment不为空，则直接将它显示出来
 				transaction.show(flagsFragment);
 			}
 			break;
-		
+
 		}
 		transaction.commit();
 	}
 
-	 /** 
-     * 清除掉所有的选中状态。 
-     */
+	/**
+	 * 清除掉所有的选中状态。
+	 */
 	private void clearSelection() {
-		
+
 	}
 
-	/** 
-     * 将所有的Fragment都置为隐藏状态。 
-     *  
-     * @param transaction 
-     *            用于对Fragment执行操作的事务 
-     */ 
+	/**
+	 * 将所有的Fragment都置为隐藏状态。
+	 * 
+	 * @param transaction
+	 *            用于对Fragment执行操作的事务
+	 */
 	private void hideFragments(FragmentTransaction transaction) {
 		if (flagsFragment != null) {
 			transaction.hide(flagsFragment);
@@ -209,15 +219,15 @@ public class ContactsMainActivity extends FragmentActivity implements OnClickLis
 
 		case R.id.search_icon:
 
-			Intent intent = new Intent(this,SearchActivity.class); 
-            startActivity(intent); 
-            overridePendingTransition(R.anim.push_up_in, R.anim.none);
+			Intent intent = new Intent(this, SearchActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.push_up_in, R.anim.none);
 			break;
-			
+
 		case R.id.additem_icon:
-			
+
 			break;
-			
+
 		case android.R.id.home:
 			if (mDrawerLayout.isDrawerOpen(mDrawerRL)) {
 				mDrawerLayout.closeDrawer(mDrawerRL);

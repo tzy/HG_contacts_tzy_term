@@ -44,11 +44,6 @@ public class NewTagActivity extends FragmentActivity implements
 	 */
 	DbHelper dbHelper = null;
 	SQLiteDatabase db = null;
-	
-	/**
-	 * Ë÷Òý
-	 */
-	IndexOperateHelper ioh = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +56,7 @@ public class NewTagActivity extends FragmentActivity implements
 
 		dbHelper = new DbHelper(this, DbHelper.DB_NAME);
 		db = dbHelper.getWritableDatabase();
-		
-		ioh = new IndexOperateHelper(NewTagActivity.this.getApplicationContext()
-				.getFilesDir().getAbsolutePath());
-		
+
 		getSupportLoaderManager().initLoader(0, null, this);
 	}
 
@@ -119,7 +111,6 @@ public class NewTagActivity extends FragmentActivity implements
 		super.onDestroy();
 		db.close();
 		dbHelper.close();
-		ioh.close();
 	}
 
 	private class NewTagTask extends AsyncTask<String, Void, Void> {
@@ -133,16 +124,22 @@ public class NewTagActivity extends FragmentActivity implements
 			long status = db.insert(DbHelper.TAG_TABLE, null, values);
 			if (status != -1) {
 				String tagId = String.valueOf(status);
-				
+
 				Iterator<Contact> it = selectedContacts.iterator();
-				while(it.hasNext()) {
+				while (it.hasNext()) {
 					Contact contact = it.next();
 					values.clear();
-					values.put(DbHelper.CONTACT_ID, Integer.parseInt(contact.getId()));
+					values.put(DbHelper.CONTACT_ID,
+							Integer.parseInt(contact.getId()));
 					values.put(DbHelper.TAG_ID, status);
 					db.insert(DbHelper.CONTACT_TAG_TABLE, null, values);
-					
-					ioh.addTagDocument(contact.getId(), contact.getName(), tagName, tagId);
+
+					IndexOperateHelper ioh = new IndexOperateHelper(
+							NewTagActivity.this.getApplicationContext()
+									.getFilesDir().getAbsolutePath());
+					ioh.addTagDocument(contact.getId(), contact.getName(),
+							tagName, tagId);
+					ioh.close();
 				}
 			}
 			return null;

@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -25,7 +26,6 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import com.contacts.contact.Contact;
 import com.contacts.db.DbHelper;
 import com.contacts.db.SqliteQueryLoader;
 import com.contacts.index.IndexOperateHelper;
@@ -54,8 +54,6 @@ public class ContactLookUpActivity extends FragmentActivity implements
 
 	DbHelper dbHelper = null;
 	SQLiteDatabase db = null;
-
-	IndexOperateHelper ioh = null;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -91,20 +89,14 @@ public class ContactLookUpActivity extends FragmentActivity implements
 
 		Bundle bundle = this.getIntent().getExtras();
 		contactId = bundle.getString(DbHelper.CONTACT_ID);
-		name = bundle.getString(DbHelper.NAME);
 
 		dbHelper = new DbHelper(this, DbHelper.DB_NAME);
 		db = dbHelper.getWritableDatabase();
-
-		ioh = new IndexOperateHelper(ContactLookUpActivity.this
-				.getApplicationContext().getFilesDir().getAbsolutePath());
 
 		getSupportLoaderManager().initLoader(PHONE_LOADER_ID, null, this);
 		getSupportLoaderManager().initLoader(EMAIL_LOADER_ID, null, this);
 		getSupportLoaderManager()
 				.initLoader(ADDRESS_NOTE_LOADER_ID, null, this);
-
-		nameTextView.setText(name);
 	}
 
 	@Override
@@ -115,9 +107,6 @@ public class ContactLookUpActivity extends FragmentActivity implements
 			db.close();
 		if (dbHelper != null)
 			dbHelper.close();
-
-		if (ioh != null)
-			ioh.close();
 	}
 
 	public void fixListViewHeight(ListView listView) {
@@ -158,6 +147,20 @@ public class ContactLookUpActivity extends FragmentActivity implements
 					R.anim.push_right_out);
 			return true;
 		case R.id.alter_icon:
+			Intent intent = new Intent();
+			intent.setClass(ContactLookUpActivity.this, AddContact.class);
+			Bundle bundle = new Bundle();
+			bundle.putString(DbHelper.CONTACT_ID, contactId);
+			bundle.putString(DbHelper.NAME, name);
+			bundle.putString(DbHelper.ADDRESS, addressTextView.getText()
+					.toString());
+			bundle.putString(DbHelper.NOTE, noteTextView.getText().toString());
+			intent.putExtras(bundle);
+			intent.putStringArrayListExtra(DbHelper.PHONE_NUM,
+					getDataFromCursor(phonesAdapter.getCursor()));
+			intent.putStringArrayListExtra(DbHelper.EMAIL,
+					getDataFromCursor(emailsAdapter.getCursor()));
+			startActivity(intent);
 			break;
 		}
 		return true;
@@ -196,7 +199,10 @@ public class ContactLookUpActivity extends FragmentActivity implements
 				break;
 
 			case R.id.bt_create_qcode:
-				Contact contact = getContact();
+				String mName = name;
+				String address = addressTextView.getText().toString();
+				List<String> phones = getDataFromCursor(phonesAdapter.getCursor());
+				List<String> emails = getDataFromCursor(emailsAdapter.getCursor());
 				break;
 			}
 		}
@@ -205,7 +211,10 @@ public class ContactLookUpActivity extends FragmentActivity implements
 	private void deleteContact() {
 		db.delete(DbHelper.CONTACT_TABLE, DbHelper.CONTACT_ID + "=?",
 				new String[] { contactId });
+		IndexOperateHelper ioh = new IndexOperateHelper(ContactLookUpActivity.this
+				.getApplicationContext().getFilesDir().getAbsolutePath());
 		ioh.deleteContact(contactId);
+		ioh.close();
 		ContactLookUpActivity.this.getContentResolver().notifyChange(
 				DbHelper.URI_CONTACT_TABLE, null);
 	}
@@ -232,7 +241,7 @@ public class ContactLookUpActivity extends FragmentActivity implements
 					selectionArgs, null);
 			break;
 		case ADDRESS_NOTE_LOADER_ID:
-			String[] otherProjection = new String[] { DbHelper.ADDRESS,
+			String[] otherProjection = new String[] {DbHelper.NAME, DbHelper.ADDRESS,
 					DbHelper.NOTE };
 			loader = new SqliteQueryLoader(this, db, DbHelper.CONTACT_TABLE,
 					DbHelper.URI_CONTACT_TABLE, otherProjection, selection,
@@ -261,8 +270,10 @@ public class ContactLookUpActivity extends FragmentActivity implements
 			break;
 		case ADDRESS_NOTE_LOADER_ID:
 			if (cursor.moveToFirst()) {
-				addressTextView.setText(cursor.getString(0));
-				noteTextView.setText(cursor.getString(1));
+				name = cursor.getString(cursor.getColumnIndex(DbHelper.NAME));
+				nameTextView.setText(name);
+				addressTextView.setText(cursor.getString(cursor.getColumnIndex(DbHelper.ADDRESS)));
+				noteTextView.setText(cursor.getString(cursor.getColumnIndex(DbHelper.NOTE)));
 			}
 			break;
 		}
@@ -286,18 +297,9 @@ public class ContactLookUpActivity extends FragmentActivity implements
 
 	}
 
-	private Contact getContact() {
-		Contact contact = new Contact();
-		contact.setName(name).setAddress(addressTextView.getText().toString())
-				.setNote(noteTextView.getText().toString())
-				.setPhones(getDataFromCursor(phonesAdapter.getCursor()))
-				.setEmails(getDataFromCursor(emailsAdapter.getCursor()));
-		return contact;
-	}
-	
-	private List<String> getDataFromCursor(Cursor cursor){
-		List<String> datas = new ArrayList<String>();
-		if(cursor != null && cursor.getCount() > 0){
+	private ArrayList<String> getDataFromCursor(Cursor cursor) {
+		ArrayList<String> datas = new ArrayList<String>();
+		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
 					String data = cursor.getString(1);

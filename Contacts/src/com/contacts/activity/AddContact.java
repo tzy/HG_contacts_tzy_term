@@ -13,6 +13,9 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.contacts.contact.Contact;
+import com.contacts.db.DbHelper;
+import com.contacts.db.InsertContactTask;
+import com.contacts.db.UpdateContactTask;
 
 public class AddContact extends Activity {
 
@@ -22,7 +25,7 @@ public class AddContact extends Activity {
 	private Button btnSubmit;
 
 	private EditText edtName;
-	private EditText edtAdress;
+	private EditText edtAddress;
 	private EditText edtNote;
 
 	private ListView phoneLV; // ListView¿Ø¼þ
@@ -35,7 +38,7 @@ public class AddContact extends Activity {
 	private ArrayList<String> emails;
 
 	Bundle bundle;
-
+	
 	public void fixListViewHeight(ListView listView) {
 
 		ListAdapter listAdapter = listView.getAdapter();
@@ -67,30 +70,34 @@ public class AddContact extends Activity {
 		initUI();
 		setListener();
 
-		bundle = this.getIntent().getExtras();
-		if (bundle == null) {
-			initData();
-		} else {
-			initUpdataData();
-		}
+		initData();
 
 	}
 
 	private void initData() {
-		phones = new ArrayList<String>();
-		emails = new ArrayList<String>();
-		phones.add("");
-		emails.add("");
+		bundle = this.getIntent().getExtras();
+		if (bundle == null) {
+			phones = new ArrayList<String>();
+			emails = new ArrayList<String>();
+			phones.add("");
+			emails.add("");
+		} else {
+			String name = bundle.getString(DbHelper.NAME);
+			String address = bundle.getString(DbHelper.ADDRESS);
+			String note = bundle.getString(DbHelper.NOTE);
+			edtName.setText(name);
+			edtAddress.setText(address);
+			edtNote.setText(note);
+			phones = getIntent().getStringArrayListExtra(DbHelper.PHONE_NUM);
+			emails = getIntent().getStringArrayListExtra(DbHelper.EMAIL);
+		}
 		addPhoneItemAdapter = new AddItemBaseAdapter(getApplicationContext(),
 				phones);
 		addEmailItemAdapter = new AddItemBaseAdapter(getApplicationContext(),
 				emails);
 		phoneLV.setAdapter(addPhoneItemAdapter);
 		emailLV.setAdapter(addEmailItemAdapter);
-	}
-
-	private void initUpdataData() {
-
+		// TODO Auto-generated method stub
 	}
 
 	private void initUI() {
@@ -99,7 +106,7 @@ public class AddContact extends Activity {
 		addEmailItem = (ImageButton) findViewById(R.id.bt_add_email_item);
 		btnSubmit = (Button) findViewById(R.id.bt_submit);
 		edtName = (EditText) findViewById(R.id.edt_username);
-		edtAdress = (EditText) findViewById(R.id.edt_address);
+		edtAddress = (EditText) findViewById(R.id.edt_address);
 		edtNote = (EditText) findViewById(R.id.edt_note);
 
 		phoneLV = (ListView) findViewById(R.id.lv_phonenumber);
@@ -135,17 +142,26 @@ public class AddContact extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				InsertContactTask insertTask = new InsertContactTask(
-						AddContact.this, getContact());
-				insertTask.execute();
+				if(bundle == null){
+					InsertContactTask insertTask = new InsertContactTask(
+							AddContact.this, getContact());
+					insertTask.execute();
+				}else{
+					UpdateContactTask updateTask = new UpdateContactTask(AddContact.this, getContact());
+					updateTask.execute();
+				}
 			}
 		});
 	}
 
 	private Contact getContact() {
-		Contact contact = new Contact();
+		Contact contact = null;
+		if(bundle == null)
+			contact = new Contact();
+		else
+			contact = new Contact(bundle.getString(DbHelper.CONTACT_ID));
 		String name = edtName.getText().toString();
-		String address = edtAdress.getText().toString();
+		String address = edtAddress.getText().toString();
 		String note = edtNote.getText().toString();
 		contact.setName(name).setAddress(address).setNote(note)
 				.setPhones(phones).setEmails(emails);
