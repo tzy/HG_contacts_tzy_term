@@ -1,5 +1,6 @@
 package com.contacts.activity;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -68,7 +69,13 @@ public class TagsFragment extends Fragment implements
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
-				int id = (int)arg3;
+				String tagId = Long.toString(arg3);
+				Intent intent = new Intent();
+				intent.setClass(getActivity(), TagMembersActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putString(DbHelper.TAG_ID, tagId);
+				intent.putExtras(bundle);
+				startActivity(intent);
 
 			}
 		});

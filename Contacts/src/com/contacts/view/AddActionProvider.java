@@ -9,6 +9,7 @@ import android.view.SubMenu;
 import android.view.View;
 
 import com.contacts.activity.AddContact;
+import com.contacts.activity.CaptureActivity;
 import com.contacts.activity.NewTagActivity;
 
 public class AddActionProvider extends ActionProvider {
@@ -40,6 +41,8 @@ public class AddActionProvider extends ActionProvider {
 				new OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
+						Intent openCameraIntent = new Intent(mContext ,CaptureActivity.class);
+						mContext.startActivity(openCameraIntent);
 						return true;
 					}
 				});

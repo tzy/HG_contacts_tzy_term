@@ -1,6 +1,7 @@
 package com.contacts.activity;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -201,8 +202,31 @@ public class ContactLookUpActivity extends FragmentActivity implements
 			case R.id.bt_create_qcode:
 				String mName = name;
 				String address = addressTextView.getText().toString();
+				String note = noteTextView.getText().toString();
 				List<String> phones = getDataFromCursor(phonesAdapter.getCursor());
 				List<String> emails = getDataFromCursor(emailsAdapter.getCursor());
+				
+				String contentString = mName + "|" + address + "|" + note + "|";
+				Iterator<String> phoneIterator = phones.iterator();
+				while(phoneIterator.hasNext()) {
+					
+					contentString = contentString + phoneIterator.next()+" ";
+					
+				}
+				
+				contentString = contentString+"|";
+				
+				Iterator<String> emailsIterator = emails.iterator();
+				while(emailsIterator.hasNext()) {
+					
+					contentString = contentString + emailsIterator.next()+" ";
+					
+				}
+				Bundle codeString = new Bundle();
+				codeString.putString("String_for_pic", contentString);
+				Intent intent = new Intent(ContactLookUpActivity.this,GenerateQRCode.class);
+				intent.putExtras(codeString);
+				startActivity(intent);
 				break;
 			}
 		}
